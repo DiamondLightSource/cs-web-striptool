@@ -1,21 +1,20 @@
 /**
  * Load a .stp file and parse into an array of dicts
  */
-import { readFileSync } from "fs";
-
-type StripToolConfigDict = {
-    [key: string]: string,
-}
+import { StripToolConfigDict } from "./types";
 
 /**
  * Opens and reads the .stp file
  * @param filename the file to load and read
  * @returns: an array of dictionaries
  */
-function readFile(filename: string) {
+export async function readFile(filename: string) {
     // Read file
-    const file = readFileSync(filename, 'utf-8');
-    const lines: string[] = file.split("\n");
+    const filePromise = await fetch(filename);
+    console.log(filename);
+    const contents = await filePromise.text();
+    console.log(contents);
+    const lines: string[] = contents.split("\n");
 
     const dataDict: StripToolConfigDict = {};
     lines.forEach(line => {
@@ -109,5 +108,3 @@ function parseCurves(data: StripToolConfigDict) {
     }
     return curves;
 }
-
-readFile("/dls_sw/work/R3.14.12.7/ioc/BL23I/BL/BL23IApp/opi/edl/vacuum1.stp");
