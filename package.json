@@ -3,21 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chakra-ui/react": "^2.8.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^12.1.2",
+    "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^29.5.3",
     "@types/node": "^20.5.0",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
-    "eslint": "^8.47.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-import": "^2.28.0",
-    "eslint-plugin-unicorn": "^48.0.1",
+    "apollo-link-retry": "^2.2.16",
+    "framer-motion": "^10.16.0",
+    "plotly.js-basic-dist": "^2.25.2",
     "prettier": "^3.0.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "^4.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-plotly.js": "^2.6.0",
+    "react-router-dom": "^6.15.0",
+    "react-scripts": "^5.0.0",
     "typescript": "^4.5.4",
     "web-vitals": "^2.1.4"
   },
@@ -44,5 +48,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@apollo/client": "^3.8.1",
+    "@types/react-plotly.js": "^2.6.0",
+    "graphql-ws": "^5.14.0"
   }
 }

@@ -3,6 +3,11 @@ export type GraphPanelComponentProps = {
     graphConfig: StripToolConfig
 };
 
+export type ControlPanelComponentProps = {
+    graphConfig: StripToolConfig
+};
+
+
 export type StripToolConfigDict = {
     [key: string]: string,
 };

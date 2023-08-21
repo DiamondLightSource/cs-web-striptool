@@ -1,8 +1,11 @@
 import './App.css';
-import React from 'react';
+import React, { useState } from 'react';
 import { GraphPanel } from './ui/graphPanel';
 import { readFile } from './parser';
+import { Routes, Route } from "react-router-dom";
 import { StripToolConfig } from './types';
+import { ControlPanel } from './ui/controlPanel';
+import { ChakraProvider } from '@chakra-ui/react'
 
 const TEST_CONFIG: StripToolConfig = {
   config: "wah",
@@ -25,7 +28,7 @@ const TEST_CONFIG: StripToolConfig = {
     },
     curve: [
       {
-        name: "BL-PV-THING-NAME-HERE",
+        name: "BL-PV-THING-NAME-HEREs",
         color: [1, 1, 1],
         units: "sheep",
         comment: "lots of sheep",
@@ -39,11 +42,20 @@ const TEST_CONFIG: StripToolConfig = {
 }
 
 function App() {
-  //eadFile("../vacuum1.stp");
+  //readFile("../vacuum1.stp");
+  //<GraphPanel graphConfig={TEST_CONFIG}></GraphPanel>
+  //<ControlPanel graphConfig={TEST_CONFIG}></ControlPanel>
+
+  const [config, setConfig] = useState(TEST_CONFIG);
   return (
-    <div className="App">
-      <GraphPanel graphConfig={TEST_CONFIG}></GraphPanel>
-    </div>
+    <ChakraProvider>
+      <div className="App">
+      <Routes>
+        <Route path="/" element={<ControlPanel graphConfig={config}/>} />
+        <Route path="/graph" element={<GraphPanel graphConfig={config}/>} />
+      </Routes>
+      </div>
+    </ChakraProvider>
   );
 }
 
