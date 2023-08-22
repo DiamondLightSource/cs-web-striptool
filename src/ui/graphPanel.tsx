@@ -1,19 +1,18 @@
 import React, { useEffect, useState, CSSProperties } from "react";
 import Plotly from "plotly.js-basic-dist";
 import createPlotlyComponent from "react-plotly.js/factory";
-import { GraphPanelComponentProps } from "../types";
+import { GraphPanelComponentProps, StripToolConfig } from "../types";
 import classes from "./graphPanel.module.css";
+import { useSelector } from "react-redux";
 
 // Create plot component from minimal Plotly package
 // This is necessary because normal Plot component is too large,
 const Plot = createPlotlyComponent(Plotly);
 
-export const GraphPanel = (props: GraphPanelComponentProps): JSX.Element => {
-    const { 
-      graphConfig
-    } = props;
+export const GraphPanel = (): JSX.Element => {
+    const state = useSelector((state: StripToolConfig) => state);
     // Create data
-    const numData = graphConfig.time.timespan / graphConfig.time.sampleInterval;
+    const numData = state.time.timespan / state.time.sampleInterval;
     const date = new Date()
     const timestamp = Math.floor(date.getTime()/1000.0);
     const startingX = [timestamp];
@@ -27,15 +26,15 @@ export const GraphPanel = (props: GraphPanelComponentProps): JSX.Element => {
 
     // Create legend element for each curve
     const curves: React.JSX.Element[] = [];
-    graphConfig.curve.forEach((curve) => {
+    state.curve.forEach((curve, idx) => {
       const style: CSSProperties = {};
-      style.borderColor = `rgba(${curve.color.toString()})`;
+      style.borderColor = `rgba(${state.color.colors[idx].toString()})`;
       // Text for inside box
       const text = `${curve.units}\n ${curve.scale} (${curve.min}, ${curve.max}) VAL=${data.y[-1]}\n ${curve.comment}`
       curves.push((
         <div key={curve.name}>
           <div className={classes.Curve} style={style}>
-            {graphConfig.curve[0].name}
+            {state.curve[0].name}
           </div>
           {text}
         </div>
@@ -60,12 +59,12 @@ export const GraphPanel = (props: GraphPanelComponentProps): JSX.Element => {
             y: prev.y
           };
         });
-      }, graphConfig.time.refreshInterval);
+      }, state.time.refreshInterval);
     
       return () => {
         clearInterval(interval);
       };
-    }, [numData, graphConfig.time.refreshInterval]);
+    }, [numData, state.time.refreshInterval]);
     return (
         <><Plot
         className={classes.StripToolPlot}
@@ -86,19 +85,3 @@ export const GraphPanel = (props: GraphPanelComponentProps): JSX.Element => {
         </div></>
       );
   }
-
-
-/*  function createLines(): any[] {
-    let traces: any[] = [];
-    traces.push({
-        name: dataSet.label.key, 
-        y: dataSet.values.map(point => point[yName as keyof typeof point]),
-        type: "scatter",
-        mode: "cycle",
-        marker: {
-            color: dataSet.label.color, 
-            symbol: symbol 
-        },
-    })
-    return traces
-}*/

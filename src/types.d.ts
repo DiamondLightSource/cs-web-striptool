@@ -29,16 +29,16 @@ type StripToolConfig = {
     color: {
         background: number[],
         foreground: number[],
-        grid: number[]
+        grid: number[],
+        colors: number[][]
     },
     curve: GraphCurve[]
 };
 
 type GraphCurve = {
     name: string,
-    color: number[],
-    units: string,
-    comment: string,
+    units?: string,
+    comment?: string,
     precision: number,
     min: number,
     max: number,

@@ -1,20 +1,34 @@
 import React from "react";
-import { ControlPanelComponentProps } from "../types";
-import {Box, Tabs, TabPanels, TabPanel, TabList, Tab, Button, Input, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Link as ChakraLink} from "@chakra-ui/react";
+import { ControlPanelComponentProps, GraphCurve } from "../types";
+import {Box, Tabs, TabPanels, TabPanel, TabList, Tab, Button, Input, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Link as ChakraLink, FormControl} from "@chakra-ui/react";
 import { ControlsTab } from "./controlsTab";
 import { CurvesTab } from "./curvesTab";
 import { Link as ReactRouterLink } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addCurve } from "../redux/actions";
 
-export const ControlPanel = (props: ControlPanelComponentProps): JSX.Element => {
-    const { 
-      graphConfig
-    } = props;
+export const ControlPanel = (): JSX.Element => {
+    const dispatch = useDispatch();
 
-    const [value, setValue] = React.useState(0);
+    const [input, setInput] = React.useState("");
 
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-      };
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setInput(event.currentTarget.value);
+    };
+
+    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+      // Create curve with defaults
+      const newCurve: GraphCurve = {
+        name: input,
+        precision: 4,
+        min: 0,
+        max: 10000000,
+        scale: false,
+        plotStatus: false
+      }
+      console.log(newCurve);
+      dispatch(addCurve(newCurve));
+    };
 
     return (
       <Box sx={{width: "100%"}}>
@@ -40,9 +54,11 @@ export const ControlPanel = (props: ControlPanelComponentProps): JSX.Element => 
             </MenuList>
         </Menu>
         <Box sx={{width: "100%"}}>
-          Plot New Signal: 
-          <Input sx={{width: "60%"}}variant='outline' placeholder='PV name here' />
-          <Button colorScheme="blue" variant="outline">Connect</Button>
+        <FormControl>
+            Plot New Signal: 
+            <Input onChange={handleChange} sx={{width: "60%"}}variant='outline' placeholder='PV name here' />
+            <Button onClick={handleClick} colorScheme="blue" variant="outline">Connect</Button>
+          </FormControl>
           <Box sx={{width: "100%"}}>
             <Tabs variant="enclosed">
               <TabList>
@@ -51,10 +67,10 @@ export const ControlPanel = (props: ControlPanelComponentProps): JSX.Element => 
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <CurvesTab curves={graphConfig.curve} />
+                  <CurvesTab />
                 </TabPanel>
                 <TabPanel>
-                  <ControlsTab graphOptions={graphConfig} />
+                  <ControlsTab />
                 </TabPanel>
               </TabPanels>
             </Tabs>
