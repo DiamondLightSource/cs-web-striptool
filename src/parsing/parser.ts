@@ -1,7 +1,7 @@
 /**
  * Load a .stp file and parse into an array of dicts
  */
-import { StripToolConfigDict } from "./types";
+import { StripToolConfigDict } from "../types";
 
 /**
  * Opens and reads the .stp file
@@ -23,16 +23,15 @@ export async function readFile(filename: string) {
         dataDict[keyname as string] = res.toString();
     })
 
+    const stripToolConfigVer = Number(dataDict["StripConfig"]);
     const stripToolConfig = {
-        config: Number(dataDict["StripConfig"]),
         option: parseGraphOptions(dataDict),
         time: parseTimes(dataDict),
         color: parseGraphColors(dataDict),
         curves: parseCurves(dataDict)
 
     }
-    console.log(stripToolConfig);
-    return stripToolConfig;
+    return [stripToolConfig, stripToolConfigVer];
 }
 
 
@@ -70,11 +69,15 @@ function parseTimes(data: StripToolConfigDict) {
 }
 
 function parseGraphColors(data: StripToolConfigDict) {
-    // split by comma, divide by
+    const colors: any[] = [];
+    for (let idx = 1; idx < 11; idx++) {
+        colors.push(parseColor(data[`Strip.Color.Color${idx}`]))
+    }
     const color = {
         background: parseColor(data["Strip.Color.Background"]),
         foreground: parseColor(data["Strip.Color.Foreground"]),
         grid: parseColor(data["Strip.Color.Grid"]),
+        colors: colors
     }
     return color;
 }
@@ -92,10 +95,11 @@ function parseCurves(data: StripToolConfigDict) {
     const curves: any[] = [];
     // Determine how many curves there are by how many keys contain "Strip.Curve.<num>.Name"
     const numCurves = (Object.keys(data).filter(key => key.includes(".Name"))).length;
+    // There should be less than 10
+    if (numCurves > 10) throw new Error("Too many curves.")
     for(let idx = 0; idx < numCurves; idx++){
         const curve = {
             name: data[`Strip.Curve.${idx}.Name`],
-            color: parseColor(data[`Strip.Color.Color${idx + 1}`]),
             units: data[`Strip.Curve.${idx}.Units`],
             comment: data[`Strip.Curve.${idx}.Comment`],
             precision: Number(data[`Strip.Curve.${idx}.Precision`]),
