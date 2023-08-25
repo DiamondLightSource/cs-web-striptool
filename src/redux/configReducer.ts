@@ -3,7 +3,6 @@ import { ADD_CURVE, DELETE_CURVE, MODIFY_CONFIG } from "./actions";
 import { StripToolConfig } from "../types";
 
 const initialState: StripToolConfig = {
-    config: "1.2",
     option: {
       gridXOn: 1,
       gridYOn: 1,
@@ -37,7 +36,7 @@ const initialState: StripToolConfig = {
     curve: []
 }
 
-export default function cartReducer (state = initialState, action: AnyAction) {
+export default function configReducer (state = initialState, action: AnyAction) {
   switch (action.type) {
     case ADD_CURVE:
       const newCurve = [...state.curve, action.curve];
@@ -49,7 +48,7 @@ export default function cartReducer (state = initialState, action: AnyAction) {
     case DELETE_CURVE:
       // Find index of curve to remove
       const index = state.curve.findIndex(curve => curve.name === action.curveName);
-      const newCurves = state.curve;
+      const newCurves = [...state.curve];
       newCurves.splice(index, 1);
       return {
         ...state,
@@ -57,11 +56,24 @@ export default function cartReducer (state = initialState, action: AnyAction) {
       };
 
     case MODIFY_CONFIG:
-      const newTime = state.time;
-      newTime.timespan += 1;
+      const fields = action.field.split(".");
+      if (fields[0] === "curve") {
+        const idx = fields[1];
+        // We have updated a curve at given index
+        const newCurves = [...state.curve];
+        newCurves[idx] = action.value;
+        return {
+          ...state,
+          curve: newCurves
+        };
+      } 
+      // Update field with new value
       return {
         ...state,
-        time: newTime,
+        [fields[0]]: {
+          ...state[fields[0] as keyof StripToolConfig],
+          [fields[1]]: action.value
+        },
       };
     default:
       return state;

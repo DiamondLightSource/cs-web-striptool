@@ -19,7 +19,7 @@ const deleteCurve = (name: string) => {
   };
 };
 
-const modifyConfig = (name: string, value: any) => {
+const modifyConfig = (name: string, value: string | number | boolean | GraphCurve) => {
     return {
       type: MODIFY_CONFIG,
       field: name,

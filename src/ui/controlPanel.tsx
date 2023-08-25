@@ -1,11 +1,12 @@
 import React from "react";
-import { ControlPanelComponentProps, GraphCurve } from "../types";
+import { GraphCurve } from "../types";
 import {Box, Tabs, TabPanels, TabPanel, TabList, Tab, Button, Input, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Link as ChakraLink, FormControl} from "@chakra-ui/react";
-import { ControlsTab } from "./controlsTab";
-import { CurvesTab } from "./curvesTab";
 import { Link as ReactRouterLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addCurve } from "../redux/actions";
+import { CurveTable } from "./components/CurveTable/curveTable";
+import { GraphOptions } from "./components/GraphOptions/graphOptions";
+import { TimeControls } from "./components/TimeControls/timeControls";
 
 export const ControlPanel = (): JSX.Element => {
     const dispatch = useDispatch();
@@ -26,7 +27,6 @@ export const ControlPanel = (): JSX.Element => {
         scale: false,
         plotStatus: false
       }
-      console.log(newCurve);
       dispatch(addCurve(newCurve));
     };
 
@@ -67,10 +67,21 @@ export const ControlPanel = (): JSX.Element => {
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <CurvesTab />
+                  <Box borderWidth='1px' borderRadius='lg' overflow='hidden'>
+                    <CurveTable />
+                  </Box>
                 </TabPanel>
                 <TabPanel>
-                  <ControlsTab />
+                  <Box sx={{width: "100%"}}>
+                    <Box sx={{width: "50%"}}>
+                      Time Controls
+                      <TimeControls/>
+                    </Box>
+                    <Box sx={{width: "50%"}}>
+                      Graph Options
+                      <GraphOptions />
+                    </Box>
+                  </Box>
                 </TabPanel>
               </TabPanels>
             </Tabs>

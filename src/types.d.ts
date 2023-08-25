@@ -13,7 +13,6 @@ export type StripToolConfigDict = {
 };
 
 type StripToolConfig = {
-    config: string,
     option: {
         gridXOn: number,
         gridYOn: number,
