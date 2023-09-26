@@ -1,20 +1,47 @@
 /**
  * Load a .stp file and parse into an array of dicts
  */
-import { StripToolConfigDict } from "../types";
+import { StripToolConfig, StripToolConfigDict } from "../types";
+
 
 /**
- * Opens and reads the .stp file
+ * Opens and reads the .stp file, loads into state
  * @param filename the file to load and read
  * @returns: an array of dictionaries
  */
-export async function readFile(filename: string) {
+export async function parseFile(file: File) {
+    const fileContents = await resolveLoadFile(file);
+    if (typeof fileContents == "string") {
+      const config = readFile(fileContents);
+      console.log(config);
+      return config;
+    }
+}
+
+function resolveLoadFile(inputFile: File){
+    const fileReader = new FileReader();
+
+    return new Promise<string | ArrayBuffer | null>((resolve, reject) => {
+        fileReader.onerror = () => {
+          fileReader.abort();
+          reject(new DOMException("Problem parsing input file."));
+        };
+
+        fileReader.onload = () => {
+          resolve(fileReader.result);
+        };
+        fileReader.readAsText(inputFile);
+    });
+};
+
+/**
+ * Reads and parses the .stp file
+ * @param filename the file to load and read
+ * @returns: an array of dictionaries
+ */
+export function readFile(file: string) {
     // Read file
-    const filePromise = await fetch(filename);
-    console.log(filename);
-    const contents = await filePromise.text();
-    console.log(contents);
-    const lines: string[] = contents.split("\n");
+    const lines: string[] = file.split("\n");
 
     const dataDict: StripToolConfigDict = {};
     lines.forEach(line => {
@@ -24,14 +51,14 @@ export async function readFile(filename: string) {
     })
 
     const stripToolConfigVer = Number(dataDict["StripConfig"]);
-    const stripToolConfig = {
+    const stripToolConfig: StripToolConfig = {
         option: parseGraphOptions(dataDict),
         time: parseTimes(dataDict),
         color: parseGraphColors(dataDict),
-        curves: parseCurves(dataDict)
+        curve: parseCurves(dataDict)
 
     }
-    return [stripToolConfig, stripToolConfigVer];
+    return stripToolConfig;
 }
 
 

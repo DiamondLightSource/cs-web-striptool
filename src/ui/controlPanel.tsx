@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useRef } from "react";
 import { GraphCurve } from "../types";
 import {Box, Tabs, TabPanels, TabPanel, TabList, Tab, Button, Input, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Link as ChakraLink, FormControl} from "@chakra-ui/react";
 import { Link as ReactRouterLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { addCurve } from "../redux/actions";
+import { addCurve, loadFile } from "../redux/actions";
 import { CurveTable } from "./components/CurveTable/curveTable";
 import { GraphOptions } from "./components/GraphOptions/graphOptions";
 import { TimeControls } from "./components/TimeControls/timeControls";
+import { parseFile } from "../parsing/parser";
 
 export const ControlPanel = (): JSX.Element => {
+    const inputRef = useRef<HTMLInputElement>(null);
     const dispatch = useDispatch();
 
     const [input, setInput] = React.useState("");
@@ -16,6 +18,20 @@ export const ControlPanel = (): JSX.Element => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setInput(event.currentTarget.value);
     };
+
+    // This calls the input file event
+    const handleLoadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files !== null) {
+        const fileObj: File = event.target.files && event.target.files[0];
+        const loadedConfig = await parseFile(fileObj);
+        if (loadedConfig) dispatch(loadFile(loadedConfig))
+      }
+    }
+
+    // Fetch file input ref
+    const handleLoadClick = () => {
+      if (inputRef.current !== null) inputRef.current.click();
+    }
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
       // Create curve with defaults
@@ -35,7 +51,10 @@ export const ControlPanel = (): JSX.Element => {
         <Menu>
             <MenuButton>File</MenuButton>
             <MenuList>
-                <MenuItem>Load</MenuItem>
+                <MenuItem onClick={handleLoadClick}>
+                  Load
+                  <input ref={inputRef} style={{display: "none"}} type="file" name="striptoolFile" onChange={handleLoadFileChange}/>
+                </MenuItem>
                 <MenuItem>Save as</MenuItem>
                 <MenuItem>Save</MenuItem>
                 <MenuDivider />
