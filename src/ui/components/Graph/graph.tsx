@@ -3,6 +3,7 @@ import Plotly from "plotly.js-basic-dist";
 import createPlotlyComponent from "react-plotly.js/factory";
 import { GraphCurve, StripToolConfig } from "../../../types";
 import { useSelector } from "react-redux";
+import { computeTimeTickLabels } from "../../../utils/computeTimeTicks";
 // Create plot component from minimal Plotly package
 // This is necessary because normal Plot component is too large,
 const Plot = createPlotlyComponent(Plotly);
@@ -15,7 +16,8 @@ type GraphProps = {
 }
 
 export const Graph = (props: GraphProps): JSX.Element => {
-    const {xLabelStrings, xAxisUnit, xTickValue, xTickMultiplier} = props;
+    let {xLabelStrings, xAxisUnit, xTickValue, xTickMultiplier} = props;
+    const fileName = useSelector((state: StripToolConfig) => state.file.name);
     const time = useSelector((state: StripToolConfig) => state.time);
     const curves = useSelector((state: StripToolConfig) => state.curve);
     // Create data
@@ -36,7 +38,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
 
     const {width, height} = getWindowDimensions();
     const {max, min} = getMinMax(curves);
-    console.log(max, min)
     useEffect(() => {
       // here we should actually be updating values every time new data comes in?
       const interval = setInterval(() => {
@@ -68,17 +69,18 @@ export const Graph = (props: GraphProps): JSX.Element => {
           layout={{
             width: width - 300,
             height: height - 10,
-            title: "filename",
+            title: fileName,
             xaxis: {
               tickvals: xLabelValues,
               ticktext: xLabelStrings,
-              title: `(${xAxisUnit})`
+              title: `(${xAxisUnit})`,
             },
             yaxis: {
-              type: curves[0].scale ? "log" : "linear",
-              range: [min, max],
+              type: "linear",
+              range: curves[0].scale ? [Math.log10(0.001), Math.log10(1)] : [0.001, 1], // set this dynamically
               title: curves[0] ? curves[0].units : "",
-            }
+            },
+            uirevision: 1 // This number needs to stay same to persist zoom on refresh
           }} />
       );
   }
