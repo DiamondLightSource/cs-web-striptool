@@ -68,7 +68,7 @@ export const CurveTable = (): JSX.Element => {
         curveOpts.push(
             <Tr key={curve.name}>
                 <Td>{curve.name}</Td>
-                <Td>{colors[idx]}</Td>
+                <Td>{createColorEl(colors[idx])}</Td>
                 <Td> 
                   <Checkbox isDisabled={!isModify[idx]} onChange={(e) => handleChange(e, "plotStatus", idx)} isChecked={curve.plotStatus} />
                 </Td>
@@ -117,4 +117,18 @@ export const CurveTable = (): JSX.Element => {
             </Table>
         </TableContainer>
     );
+}
+
+/**
+ * Function that takes rgb values and returned a div 
+ * in that colour
+ * @param color 
+ */
+function createColorEl(color: number[]) {
+  const rgbColor = `rgb(${color[0]},${color[0]},${color[0]})`
+  return (
+    <div>
+      <input type="color" id="head" name="head" defaultValue={rgbColor} />
+    </div>
+    )
 }
