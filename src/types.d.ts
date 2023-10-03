@@ -13,6 +13,10 @@ export type StripToolConfigDict = {
 };
 
 type StripToolConfig = {
+    file: {
+        name: string,
+        loaded: boolean // whether file is new or loaded from existing file
+    },
     option: {
         gridXOn: number,
         gridYOn: number,

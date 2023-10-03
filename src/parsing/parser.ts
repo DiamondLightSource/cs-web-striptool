@@ -12,8 +12,7 @@ import { StripToolConfig, StripToolConfigDict } from "../types";
 export async function parseFile(file: File) {
     const fileContents = await resolveLoadFile(file);
     if (typeof fileContents == "string") {
-      const config = readFile(fileContents);
-      console.log(config);
+      const config = readFile(fileContents, file.name, true);
       return config;
     }
 }
@@ -39,7 +38,7 @@ function resolveLoadFile(inputFile: File){
  * @param filename the file to load and read
  * @returns: an array of dictionaries
  */
-export function readFile(file: string) {
+export function readFile(file: string, fileName: string, fileLoaded: boolean) {
     // Read file
     const lines: string[] = file.split("\n");
 
@@ -52,6 +51,7 @@ export function readFile(file: string) {
 
     const stripToolConfigVer = Number(dataDict["StripConfig"]);
     const stripToolConfig: StripToolConfig = {
+        file: {name: fileName, loaded: fileLoaded},
         option: parseGraphOptions(dataDict),
         time: parseTimes(dataDict),
         color: parseGraphColors(dataDict),

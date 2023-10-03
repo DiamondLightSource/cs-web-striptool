@@ -1,8 +1,12 @@
 import { AnyAction } from "redux";
-import { LOAD_FILE, ADD_CURVE, DELETE_CURVE, MODIFY_CONFIG } from "./actions";
+import { LOAD_FILE, SAVE_FILE, ADD_CURVE, DELETE_CURVE, MODIFY_CONFIG, CLEAR_STATE } from "./actions";
 import { StripToolConfig } from "../types";
 
 const initialState: StripToolConfig = {
+    file: {
+      name: "new.stp",
+      loaded: false
+    },
     option: {
       gridXOn: 1,
       gridYOn: 1,
@@ -41,12 +45,22 @@ export default function configReducer (state = initialState, action: AnyAction) 
     case LOAD_FILE:
       // Overwrite old state with new
       const newState = action.config;
-      console.log(state);
-      console.log(newState);
       return { 
         ...state,
         ...newState 
       };
+
+    case SAVE_FILE:
+      // Overwrite old state with new
+      const newFile = {name: action.fileName, loaded: action.loaded};
+      return { 
+        ...state,
+        ...newFile 
+      };
+
+    case CLEAR_STATE:
+      // Sets state back to initial
+      return {...initialState};
 
     case ADD_CURVE:
       const newCurve = [...state.curve, action.curve];

@@ -3,7 +3,7 @@ import { GraphCurve } from "../types";
 import {Box, Tabs, TabPanels, TabPanel, TabList, Tab, Button, Input, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Link as ChakraLink, FormControl} from "@chakra-ui/react";
 import { Link as ReactRouterLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { addCurve, loadFile } from "../redux/actions";
+import { addCurve, loadFile, saveFile, clearState } from "../redux/actions";
 import { CurveTable } from "./components/CurveTable/curveTable";
 import { GraphOptions } from "./components/GraphOptions/graphOptions";
 import { TimeControls } from "./components/TimeControls/timeControls";
@@ -33,6 +33,21 @@ export const ControlPanel = (): JSX.Element => {
       if (inputRef.current !== null) inputRef.current.click();
     }
 
+    // TO DO - finish function
+    const handleSaveClick = () => {
+      //dispatch(saveFile())
+      if (inputRef.current !== null) inputRef.current.click();
+    }
+
+    // TO DO - finish function
+    const handleSaveAsClick = () => {
+      if (inputRef.current !== null) inputRef.current.click();
+    }
+
+    const handleClearClick = () => {
+      dispatch(clearState())
+    }
+
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
       // Create curve with defaults
       const newCurve: GraphCurve = {
@@ -55,10 +70,10 @@ export const ControlPanel = (): JSX.Element => {
                   Load
                   <input ref={inputRef} style={{display: "none"}} type="file" name="striptoolFile" onChange={handleLoadFileChange}/>
                 </MenuItem>
-                <MenuItem>Save as</MenuItem>
-                <MenuItem>Save</MenuItem>
+                <MenuItem onClick={handleSaveAsClick}>Save as</MenuItem>
+                <MenuItem onClick={handleSaveClick}>Save</MenuItem>
                 <MenuDivider />
-                <MenuItem>Clear</MenuItem>
+                <MenuItem onClick={handleClearClick}>Clear</MenuItem>
                 <MenuDivider />
                 <MenuItem>Exit</MenuItem>
             </MenuList>
