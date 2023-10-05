@@ -44,19 +44,15 @@ const MaxTimeIntervals: number[] =
  * @param timespan the length of time to plot in seconds
  */
 export function computeTimeTickLabels(timespan: number): [string[], string, number, number] {
-    //const q = 1;
-    //let major: number;
-    //let minor: number;
     let idx: number;
     // Find which unit is best
     for (idx = 0; idx < bestUnit.length; idx++){
         if ((timespan / TimeUnitValues[idx]) <= MaxTimeIntervals[idx]) break;
     }
     // Convert to units
-    //const a = axis.min / TimeUnitValues[idx];
-    //const b = axis.max / TimeUnitValues[idx];
     // Calculate number of units in selected time e.g. 20 days, or 5 hours
     const numUnits = timespan / TimeUnitValues[idx];
+    console.log(numUnits);
     // Then calculate which of the tick divisor values gives me
     // a number of ticks closest to 4 or 5, or 2 for smaller numbers? 
     let tickValue: number = 0;
@@ -64,7 +60,9 @@ export function computeTimeTickLabels(timespan: number): [string[], string, numb
     if (numUnits >= 4) {
       for (let i = 0; i < TickDivisorVals.length; i++) {
         const tickAccuracy = numUnits / TickDivisorVals[i];
-        if (4 <= tickAccuracy && tickAccuracy <= 5) {
+        // We want to find the value closest to 4 or 5, so
+        // use 3 and 6 as filter to include those just above/below
+        if (3 <= tickAccuracy && tickAccuracy <= 6) {
           tickValue = TickDivisorVals[i];
           // Check if it's closer to 4 or 5
           tickNumber = tickAccuracy % 4 < tickAccuracy % 5 ? 4 : 5;
@@ -87,209 +85,4 @@ export function computeTimeTickLabels(timespan: number): [string[], string, numb
     // Reverse string array so datetime is last value
     tickStringArray.reverse();
     return [tickStringArray, TimeUnitStrings[idx], tickValue, TimeUnitValues[idx]];
-
-    /*
-    switch (idx) {
-        case 0: // Seconds
-        case 1: // Minutes
-          if (numUnits <= 5){
-            major = 1; // best divisors
-            minor = 1;
-          } else if (numUnits <= 10){
-            major = 2;
-            minor = 1;
-          } else if (numUnits <= 20) {
-            major = 5;
-            minor = 1;
-          } else if (numUnits <= 40) {
-            major = 10;
-            minor = 2;
-          } else if (numUnits < 90) {
-            major = 20;
-            minor = 5;
-          } else {
-            major = 30;
-            minor = 5;
-          }
-          break;
-        case 2: // Hours
-          if (numUnits <= 5){
-            major = 1;
-            minor = 1;
-          } else if (numUnits < 12) {
-            major = 2;
-            minor = 1;
-          } else if (numUnits < 20) {
-            major = 4;
-            minor = 1;
-          } else if (numUnits < 30) {
-            major = 6;
-            minor = 1;
-          } else if (numUnits < 60) {
-            major = 12;
-            minor = 2;
-          } else {
-            major = 24;
-            minor = 4;
-          }
-          break;
-        case 3: // Days
-          if (numUnits <= 5) {
-            major = 1;
-            minor = 1;
-          } else if (numUnits < 12) {
-            major = 2;
-            minor = 1;
-          } else if (numUnits < 20) {
-            major = 4;
-            minor = 1;
-          } else {
-            major = 7;
-            minor = 1;
-          }
-          break;
-        case 4: // Weeks
-          if (numUnits <= 5){
-            major = 1;
-            minor = 1;
-          } else if (numUnits < 12) {
-            major = 2;
-            minor = 1;
-          } else {
-            major = 4;
-            minor = 1;
-          }
-          break;
-        case 5: // Months
-          if (numUnits <= 5) {
-            major = 1;
-            minor = 1;
-          } else if (numUnits < 10) {
-            major = 2;
-            minor = 1;
-          } else if (numUnits < 15) {
-            major = 3;
-            minor = 1;
-          } else if (numUnits < 20) {
-            major = 4;
-            minor = 1;
-          } else if (numUnits < 30) {
-            major = 6;
-            minor = 1;
-          } else {
-            major = 12;
-            minor = 2;
-          }
-          break;
-        case 6: // Years
-        default:
-          if (numUnits <= 5) {
-              major = 1;
-              minor = 1;
-          } else if (numUnits < 12){
-              major = 2;
-              minor = 1;
-          } else if (numUnits < 24) {
-              major = 4;
-              minor = 1;
-          } else if (numUnits < 30) {
-              major = 5;
-              minor = 1;
-          } else if (numUnits < 60) {
-              major = 10;
-              minor = 2;
-          } else if (numUnits < 120) {
-              major = 20;
-              minor = 5;
-          } else {
-              major = 50;
-              minor = 50;
-          } 
-          break;
-        }
-
-    console.log(major, minor);
-    
-    // Ticks must fall on intuitive points 
-    if (axis.valueType === "absoluteTime") {
-        // Finding tick location is different for time because don't 
-        // always occupy consistent intervals. To find first boundary, 
-        // truncate current resolution units in min value and add one
-        const aSecs = axis.min;
-    } else {
-        // Relative time
-       //(major, minor) = findLinearTicks(axis, false, a, b, q, minor, major)
-       const interval = major * q;
-       let multiplier = 1;
-       let r = b;
-       let i = 0;
-       const tickOffsets: number[] = [];
-       const tickLengths: number[] = [];
-       const tickLabels: string[] = [];
-       if (interval !== 1) multiplier = interval;
-
-       while ((r - a) > - DOUBLE_EPSILON) {
-            tickOffsets[i] = r * TimeUnitValues[idx];
-            tickLengths[i] = AXIS_MAJOR_TICK_LENGTH;
-
-            if((i*minor) % major > DOUBLE_EPSILON) {
-                tickLabels[i] = "0";
-                tickLengths[i] /= 2;
-            } else {
-                // If this is first tick mark (for max value)
-                // print entire date.
-                // TO DO - check what xjaxis_reltime_dates is
-                // Limit size of label to AXIS_MAX_LABEL characters
-                const label = String(r - b)
-                tickLabels[i] = label.length > AXIS_MAX_LABEL ? label.substring(0, AXIS_MAX_LABEL) : label;
-            }
-            r -= minor * q;
-            i++;
-       }
-       let tickScale = "";
-       if (multiplier) {
-            tickScale = `${TimeUnitNameStrings[idx]} x ${multiplier}`
-       } else {
-            tickScale = TimeUnitNameStrings[idx];
-       }
-
-       const numTicks = i;
-       //transformValuesNormalised(axis.min, axis.max, tickOffsets, tickOffsets, numTicks);
-    }*/
-
 }
-
-/*
-function findLinearTicks(axis: any, niceIntervals: boolean, min: number, max: number, mag: number, minDivisor: number, macDivisor: number) {
-    const p = Math.round(Math.log10(max - min));
-    const q = Math.pow(10.0, p-1);
-
-    const a = min / q;
-    const b = max / q;
-    let nums: number[] = [] // number of ticks for ith divisor
-    for (let i = 0; i <= 9; i++) {
-        if (niceIntervals) {
-            nums[i] = (((Math.floor(b/TickDivisorVals[i]) * TickDivisorVals[i]) - Math.ceil((a/TickDivisorVals[i]) * TickDivisorVals[i]))/TickDivisorVals[i]) + 1;
-        } else {
-            nums[i] = ((b - a)/TickDivisorVals[i]) + 1;
-        }
-    }
-
-    const nMajor = 0;
-    const mMajor = 1;
-    for (let i = 0; i <= 9; i++) {
-        if (nums[i] > nMajor && nums[i]<= 6) {
-            nums[i] = (((Math.floor(b/TickDivisorVals[i]) * TickDivisorVals[i]) - Math.ceil((a/TickDivisorVals[i]) * TickDivisorVals[i]))/TickDivisorVals[i]) + 1;
-        } else {
-            nums[i] = ((b - a)/TickDivisorVals[i]) + 1;
-        }
-    }
-}
-
-function transformValuesNormalised(xIn: number[], xOut: number[], minVal: number, maxVal: number, num: number) {
-    while (num > 0) {
-        xOut[num] = (xIn[num] - minVal) / (maxVal - minVal)
-        num--;
-    }
-    return [xIn, xOut]
-}*/
