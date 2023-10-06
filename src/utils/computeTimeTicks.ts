@@ -52,7 +52,6 @@ export function computeTimeTickLabels(timespan: number): [string[], string, numb
     // Convert to units
     // Calculate number of units in selected time e.g. 20 days, or 5 hours
     const numUnits = timespan / TimeUnitValues[idx];
-    console.log(numUnits);
     // Then calculate which of the tick divisor values gives me
     // a number of ticks closest to 4 or 5, or 2 for smaller numbers? 
     let tickValue: number = 0;
