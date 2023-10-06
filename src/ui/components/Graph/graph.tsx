@@ -15,6 +15,8 @@ type GraphProps = {
   xTickMultiplier: number
 }
 
+const ZOOM_FACTORS: number[] = [0.5, 2];
+
 export const Graph = (props: GraphProps): JSX.Element => {
     let {xLabelStrings, xAxisUnit, xTickValue, xTickMultiplier} = props;
     const fileName = useSelector((state: StripToolConfig) => state.file.name);
@@ -31,12 +33,21 @@ export const Graph = (props: GraphProps): JSX.Element => {
     for (let i = 0; i < xLabelStrings.length; i++) {
       xLabelValues[i] = (timestamp - time.timespan) + (i * xTickValue * xTickMultiplier);
     }
-    const startingX = [timestamp - time.timespan];
+    const startingX = [timestamp];
     const startingY = [Math.random()];
     // Get window dimensions to calculate plot size
     const {width, height} = getWindowDimensions();
     const {max, min} = getMinMax(curves);
-    const [data, setData] = useState({x: startingX, y: startingY, mode: "lines"});
+    const [data, setData] = useState({
+      x: startingX, 
+      y: startingY, 
+      mode: "lines",
+      hoverinfo: "text",
+      text: [`${new Date(startingX[0] * 1000).toTimeString().split(" ")[0]} ${new Date(startingX[0] * 1000).toDateString()},<br>${startingY[0]}`]
+    });
+    // This determines whether the far time axis value should be the current time or another
+    const [currentTimeFixed, setCurrentTimeFixed] = useState(true);
+
     // Create initial layout object
     const initialLayout: any = {
       width: width - 300,
@@ -62,18 +73,26 @@ export const Graph = (props: GraphProps): JSX.Element => {
       },
       uirevision: 0 // This number needs to stay same to persist zoom on refresh
     }
+
+    // Set initial layout and axis ranges
     const [layout, setLayout] = useState(initialLayout)
+    const [lastRanges, setLastRanges] = useState(
+      {x: initialLayout.xaxis.range[1] - initialLayout.xaxis.range[0],
+      y: initialLayout.yaxis.range[1] - initialLayout.yaxis.range[0]
+      }
+    );
     
     // Refresh plot at required interval to fetch new data
     useEffect(() => {
       // Update data won refresh interval
       const interval = setInterval(() => {
         const date = new Date();
-        const xDate = date.getTime()
         const timestamp = date.getTime() / 1000;
         setData(prev => {
           const newLen = prev.x.push(timestamp);
-          prev.y.push(Math.random())
+          const num = Math.random();
+          prev.y.push(num);
+          prev.text.push(`${new Date(timestamp * 1000).toTimeString().split(" ")[0]} ${new Date(timestamp * 1000).toDateString()},<br>${num}`)
           // If more values than buffer, take last n
           if (newLen > numData) {
             prev.x = prev.x.slice(-numData);
@@ -82,18 +101,22 @@ export const Graph = (props: GraphProps): JSX.Element => {
           return {
             x: prev.x,
             y: prev.y,
-            mode: "lines"
+            mode: "lines",
+            text: prev.text,
+            hoverinfo: "text"
           };
         });
         // Update x axis labels
         setLayout((prev: any) => {
           const xAxis = {...prev.xaxis};
+          xAxis.showline = true;
+          xAxis.ticks = "outside";
           xAxis.tickvals = xAxis.tickvals.map((x: number) => x + time.refreshInterval);
           const things: Date[] = [];
           xAxis.tickvals.forEach((val: number) => {
             things.push(new Date(val * 1000));
           })
-          xAxis.ticktext[xAxis.ticktext.length - 1] = `${new Date(xDate).toTimeString().split(" ")[0]}\n${new Date(xDate).toDateString()}`;
+          xAxis.ticktext[xAxis.ticktext.length - 1] = `${new Date(xAxis.tickvals[xAxis.tickvals.length - 1] * 1000).toTimeString().split(" ")[0]}\n${new Date(xAxis.tickvals[xAxis.tickvals.length - 1] * 1000).toDateString()}`;
           xAxis.range = [xAxis.range[0] + time.refreshInterval, xAxis.range[1] + time.refreshInterval];
           xAxis.tick0 = xAxis.tickvals[0];
           return {
@@ -110,45 +133,72 @@ export const Graph = (props: GraphProps): JSX.Element => {
 
     // Recalculates X axis tick labels when plot rerenders
     const handleRelayout = (event: any, viewUpdated: boolean) => {
-      // TO DO - Handle panning, autorange and reset to home
-      if (viewUpdated) {
-        const date = new Date();
-        // Calculate the new, zoomed out timespan
-        const newTimespan: number = event["xaxis.range[1]"] - event["xaxis.range[0]"];
-        // Set current time as far right time axis instead of event.xaxis.range[1]
-        const xDate = new Date(date.getTime());
-        // Find new x0 for current date and timespan
-        const xNewAxisMax = (date.getTime()/1000);
-        // Calculate labels
-        let [labels, unit, tickValue, multiplier] = computeTimeTickLabels(newTimespan);
-        // Set final label to  date
-        labels[labels.length-1] = `${xDate.toTimeString().split(" ")[0]}\n${xDate.toDateString()}`;
-        // Calculate values that ticks will sit on
-        const values: number[] = [];
-        for (let i = 0; i < labels.length; i++) {
-          values[i] = xNewAxisMax - (i * tickValue * multiplier);
-        }
-        // Flip values so max time at end of array
-        values.reverse();
-        // Set new layout for new thing
-        setLayout((prev: any) => {
-          // TO DO - fix range not always displaying time
-          const xAxis = {
-            range: [Math.floor(xNewAxisMax - newTimespan), Math.ceil(xNewAxisMax + (newTimespan * 0.01))],
-            tick0: values[0],
-            tickvals: values,
-            ticktext: labels,
-            title: `(${unit})`,
-          }
-          return {
-            ...prev,
-            xaxis: xAxis,
-          };
-        });
-      }
-      // Else relayout was triggered by changing labels
-    }
+      // Don't relayout if changing between zoom and pan modes
+      if (event["dragmode"] === "pan") {
+        // In pan mode we can use different time for max x axis value
+        setCurrentTimeFixed(false);
+      } else if (event["dragmode"] === "zoom") {
+        return;
+      } else if (event["xaxis.autorange"] === true && event["yaxis.autorange"]) {
+        return;
+      } else {
+        // Check relayout event was real and not triggered by updating labels
+        if (viewUpdated) {
+          // Calculate the new timespan
+          const newTimespan: number = event["xaxis.range[1]"] - event["xaxis.range[0]"];
+          const newYRange: number = event["yaxis.range[1]"] - event["yaxis.range[0]"];
 
+          // Calculate how much both axis ranges changed by
+          const xFactor = newTimespan / lastRanges.x;
+          const yFactor = newYRange / lastRanges.y;
+
+          // Create labels
+          let [labels, unit, tickValue, multiplier] = computeTimeTickLabels(newTimespan);
+
+          // If axes reset, fix current time as x axis max
+          if (event["xaxis.showspikes"] === false && event["xaxis.showspikes"] === false) setCurrentTimeFixed(true);
+          
+          // If range changes by factor other than 0.2 or 2, select zoom used. Axis time no longer fixed
+          if (!ZOOM_FACTORS.includes(xFactor) && !ZOOM_FACTORS.includes(yFactor)) setCurrentTimeFixed(false);
+          const date = new Date();
+          // Find max date for x (time) axis
+          const xDate: Date = currentTimeFixed ? new Date(date.getTime()) : new Date(event["xaxis.range[1]"] * 1000);
+          // Find max number for x (time) axis
+          const xNewAxisMax: number = (xDate.getTime()/1000);
+          
+          // Set final label to  date
+          labels[labels.length-1] = `${xDate.toTimeString().split(" ")[0]}\n${xDate.toDateString()}`;
+          // Calculate values that ticks will sit on
+          const values: number[] = [];
+          for (let i = 0; i < labels.length; i++) {
+            values[i] = xNewAxisMax - (i * tickValue * multiplier);
+          }
+          // Flip values so max time at end of array
+          values.reverse();
+
+          // Apply the new axis limits and labels
+          const xNewRange = [Math.floor(xNewAxisMax - newTimespan), Math.ceil(xNewAxisMax + (newTimespan * 0.01))];
+          setLayout((prev: any) => {
+            const xAxis = {
+              showline: true,
+              ticks: "outside",
+              range: xNewRange,
+              tick0: values[0],
+              tickvals: values,
+              ticktext: labels,
+              title: `(${unit})`,
+            }
+            return {
+              ...prev,
+              xaxis: xAxis,
+            };
+          });
+
+          // Finally set the current axis ranges
+          setLastRanges({x: (xNewRange[1] - xNewRange[0]), y: newYRange})
+        }
+      }
+    }
     return (<Plot onRelayout={(e) => handleRelayout(e, true)} data={[data]} layout={layout} />);
   }
 
