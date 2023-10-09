@@ -1,6 +1,22 @@
 import React, { useRef } from "react";
-import { GraphCurve } from "../types";
-import {Box, Tabs, TabPanels, TabPanel, TabList, Tab, Button, Input, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Link as ChakraLink, FormControl} from "@chakra-ui/react";
+import type { GraphCurve } from "../types";
+import {
+  Box,
+  Tabs,
+  TabPanels,
+  TabPanel,
+  TabList,
+  Tab,
+  Button,
+  Input,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItem,
+  MenuList,
+  Link as ChakraLink,
+  FormControl
+} from "@chakra-ui/react";
 import { Link as ReactRouterLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addCurve, loadFile, saveFile, clearState } from "../redux/actions";
@@ -10,117 +26,131 @@ import { TimeControls } from "./components/TimeControls/timeControls";
 import { parseFile } from "../parsing/parser";
 
 export const ControlPanel = (): JSX.Element => {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const dispatch = useDispatch();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useDispatch();
 
-    const [input, setInput] = React.useState("");
+  const [input, setInput] = React.useState("");
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setInput(event.currentTarget.value);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(event.currentTarget.value);
+  };
+
+  // This calls the input file event
+  const handleLoadFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event.target.files !== null) {
+      const fileObj: File = event.target.files && event.target.files[0];
+      const loadedConfig = await parseFile(fileObj);
+      if (loadedConfig) dispatch(loadFile(loadedConfig));
+    }
+  };
+
+  // Fetch file input ref
+  const handleLoadClick = () => {
+    if (inputRef.current !== null) inputRef.current.click();
+  };
+
+  // TO DO - finish function
+  const handleSaveClick = () => {
+    //dispatch(saveFile())
+    if (inputRef.current !== null) inputRef.current.click();
+  };
+
+  // TO DO - finish function
+  const handleSaveAsClick = () => {
+    if (inputRef.current !== null) inputRef.current.click();
+  };
+
+  const handleClearClick = () => {
+    dispatch(clearState());
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    // Create curve with defaults
+    const newCurve: GraphCurve = {
+      name: input,
+      precision: 4,
+      min: 0,
+      max: 10000000,
+      scale: false,
+      plotStatus: false
     };
+    dispatch(addCurve(newCurve));
+  };
 
-    // This calls the input file event
-    const handleLoadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (event.target.files !== null) {
-        const fileObj: File = event.target.files && event.target.files[0];
-        const loadedConfig = await parseFile(fileObj);
-        if (loadedConfig) dispatch(loadFile(loadedConfig))
-      }
-    }
-
-    // Fetch file input ref
-    const handleLoadClick = () => {
-      if (inputRef.current !== null) inputRef.current.click();
-    }
-
-    // TO DO - finish function
-    const handleSaveClick = () => {
-      //dispatch(saveFile())
-      if (inputRef.current !== null) inputRef.current.click();
-    }
-
-    // TO DO - finish function
-    const handleSaveAsClick = () => {
-      if (inputRef.current !== null) inputRef.current.click();
-    }
-
-    const handleClearClick = () => {
-      dispatch(clearState())
-    }
-
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-      // Create curve with defaults
-      const newCurve: GraphCurve = {
-        name: input,
-        precision: 4,
-        min: 0,
-        max: 10000000,
-        scale: false,
-        plotStatus: false
-      }
-      dispatch(addCurve(newCurve));
-    };
-
-    return (
-      <Box sx={{width: "100%"}}>
-        <Menu>
-            <MenuButton>File</MenuButton>
-            <MenuList>
-                <MenuItem onClick={handleLoadClick}>
-                  Load
-                  <input ref={inputRef} style={{display: "none"}} type="file" name="striptoolFile" onChange={handleLoadFileChange}/>
-                </MenuItem>
-                <MenuItem onClick={handleSaveAsClick}>Save as</MenuItem>
-                <MenuItem onClick={handleSaveClick}>Save</MenuItem>
-                <MenuDivider />
-                <MenuItem onClick={handleClearClick}>Clear</MenuItem>
-                <MenuDivider />
-                <MenuItem>Exit</MenuItem>
-            </MenuList>
-        </Menu>
-        <Menu>
-            <MenuButton>Window</MenuButton>
-            <MenuList>
-                <ChakraLink as={ReactRouterLink} target={"_blank"} to={"/graph"}>
-                    <MenuItem>Graph</MenuItem>
-                </ChakraLink>
-                
-            </MenuList>
-        </Menu>
-        <Box sx={{width: "100%"}}>
+  return (
+    <Box sx={{ width: "100%" }}>
+      <Menu>
+        <MenuButton>File</MenuButton>
+        <MenuList>
+          <MenuItem onClick={handleLoadClick}>
+            Load
+            <input
+              ref={inputRef}
+              style={{ display: "none" }}
+              type="file"
+              name="striptoolFile"
+              onChange={handleLoadFileChange}
+            />
+          </MenuItem>
+          <MenuItem onClick={handleSaveAsClick}>Save as</MenuItem>
+          <MenuItem onClick={handleSaveClick}>Save</MenuItem>
+          <MenuDivider />
+          <MenuItem onClick={handleClearClick}>Clear</MenuItem>
+          <MenuDivider />
+          <MenuItem>Exit</MenuItem>
+        </MenuList>
+      </Menu>
+      <Menu>
+        <MenuButton>Window</MenuButton>
+        <MenuList>
+          <ChakraLink as={ReactRouterLink} target={"_blank"} to={"/graph"}>
+            <MenuItem>Graph</MenuItem>
+          </ChakraLink>
+        </MenuList>
+      </Menu>
+      <Box sx={{ width: "100%" }}>
         <FormControl>
-            Plot New Signal: 
-            <Input onChange={handleChange} sx={{width: "60%"}}variant='outline' placeholder='PV name here' />
-            <Button onClick={handleClick} colorScheme="blue" variant="outline">Connect</Button>
-          </FormControl>
-          <Box sx={{width: "100%"}}>
-            <Tabs variant="enclosed">
-              <TabList>
-                <Tab>Curves</Tab>
-                <Tab>Controls</Tab>
-              </TabList>
-              <TabPanels>
-                <TabPanel>
-                  <Box borderWidth='1px' borderRadius='lg' overflow='hidden'>
-                    <CurveTable />
+          Plot New Signal:
+          <Input
+            onChange={handleChange}
+            sx={{ width: "60%" }}
+            variant="outline"
+            placeholder="PV name here"
+          />
+          <Button onClick={handleClick} colorScheme="blue" variant="outline">
+            Connect
+          </Button>
+        </FormControl>
+        <Box sx={{ width: "100%" }}>
+          <Tabs variant="enclosed">
+            <TabList>
+              <Tab>Curves</Tab>
+              <Tab>Controls</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+                  <CurveTable />
+                </Box>
+              </TabPanel>
+              <TabPanel>
+                <Box sx={{ width: "100%" }}>
+                  <Box sx={{ width: "50%" }}>
+                    Time Controls
+                    <TimeControls />
                   </Box>
-                </TabPanel>
-                <TabPanel>
-                  <Box sx={{width: "100%"}}>
-                    <Box sx={{width: "50%"}}>
-                      Time Controls
-                      <TimeControls/>
-                    </Box>
-                    <Box sx={{width: "50%"}}>
-                      Graph Options
-                      <GraphOptions />
-                    </Box>
+                  <Box sx={{ width: "50%" }}>
+                    Graph Options
+                    <GraphOptions />
                   </Box>
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </Box>
+                </Box>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </Box>
       </Box>
-    )
-  }
+    </Box>
+  );
+};
