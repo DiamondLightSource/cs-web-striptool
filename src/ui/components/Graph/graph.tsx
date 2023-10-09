@@ -182,13 +182,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
         const [labels, unit, tickValue, multiplier] =
           computeTimeTickLabels(newTimespan);
 
-        // If axes reset, fix current time as x axis max
-        if (
-          event["xaxis.showspikes"] === false &&
-          event["xaxis.showspikes"] === false
-        )
-          setCurrentTimeFixed(true);
-
         // If range changes by factor other than 0.2 or 2, select zoom used. Axis time no longer fixed
         if (!ZOOM_FACTORS.includes(xFactor) && !ZOOM_FACTORS.includes(yFactor))
           setCurrentTimeFixed(false);
@@ -199,6 +192,13 @@ export const Graph = (props: GraphProps): JSX.Element => {
           : new Date(event["xaxis.range[1]"] * 1000);
         // Find max number for x (time) axis
         const xNewAxisMax: number = xDate.getTime() / 1000;
+
+        // If axes reset, fix current time as x axis max
+        if (
+          event["xaxis.showspikes"] === false &&
+          event["xaxis.showspikes"] === false
+        )
+          setCurrentTimeFixed(true);
 
         // Set final label to  date
         labels[labels.length - 1] = `${
