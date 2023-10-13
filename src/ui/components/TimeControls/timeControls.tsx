@@ -1,8 +1,8 @@
 import { Button, Center, Input, SimpleGrid } from "@chakra-ui/react";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { StripToolConfig } from "../../../types";
-import { modifyConfig } from "../../../redux/actions";
+import { modifyConfig } from "../../../redux/appActions";
+import { StateConfig } from "../../../redux/state";
 
 type TimeValues = {
   [key: string]: number;
@@ -12,7 +12,9 @@ export const TimeControls = (): JSX.Element => {
   // TO DO
   // make timespan be 3 boxes
   const dispatch = useDispatch();
-  const time: TimeValues = useSelector((state: StripToolConfig) => state.time);
+  const time: TimeValues = useSelector(
+    (state: StateConfig) => state.config.time
+  );
   // Determine whether we are in the Edit state
   const [isModify, setIsModify] = React.useState(false);
   // Set up state for edited input items - we don't want to overwrite config until

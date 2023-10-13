@@ -1,12 +1,12 @@
 import { Text, Box, Center, SimpleGrid } from "@chakra-ui/react";
 import React from "react";
 import { useSelector } from "react-redux";
-import type { StripToolConfig } from "../../../types";
+import { StateConfig } from "../../../redux/state";
 
 export const Legend = (): JSX.Element => {
   const legend: React.JSX.Element[] = [];
-  const curves = useSelector((state: StripToolConfig) => state.curve);
-  const colors = useSelector((state: StripToolConfig) => state.color.colors);
+  const curves = useSelector((state: StateConfig) => state.config.curve);
+  const colors = useSelector((state: StateConfig) => state.config.color.colors);
   curves.forEach((curve, idx) => {
     const color = `rgb(${colors[idx][0]},${colors[idx][1]},${colors[idx][2]})`;
     // For each one we create a legend item

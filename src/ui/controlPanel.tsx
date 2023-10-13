@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { Link as ReactRouterLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { addCurve, loadFile, saveFile, clearState } from "../redux/actions";
+import { addCurve, loadFile, saveFile, clearConfig } from "../redux/appActions";
 import { CurveTable } from "./components/CurveTable/curveTable";
 import { GraphOptions } from "./components/GraphOptions/graphOptions";
 import { TimeControls } from "./components/TimeControls/timeControls";
@@ -63,7 +63,7 @@ export const ControlPanel = (): JSX.Element => {
   };
 
   const handleClearClick = () => {
-    dispatch(clearState());
+    dispatch(clearConfig());
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {

@@ -11,17 +11,18 @@ import {
   Checkbox,
   Input
 } from "@chakra-ui/react";
-import type { GraphCurve, StripToolConfig } from "../../../types";
+import type { GraphCurve } from "../../../types";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteCurve, modifyConfig } from "../../../redux/actions";
+import { deleteCurve, modifyConfig } from "../../../redux/appActions";
+import { StateConfig } from "../../../redux/state";
 
 export const CurveTable = (): JSX.Element => {
   const dispatch = useDispatch();
   // Pass in new row when one is added?
   const curves: GraphCurve[] = useSelector(
-    (state: StripToolConfig) => state.curve
+    (state: StateConfig) => state.config.curve
   );
-  const colors = useSelector((state: StripToolConfig) => state.color.colors);
+  const colors = useSelector((state: StateConfig) => state.config.color.colors);
 
   // Determine whether we are in the Edit state for each row
   const initialIsModify: boolean[] = Array(10).fill(false);

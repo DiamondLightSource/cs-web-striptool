@@ -2,7 +2,7 @@ import type { GraphCurve, StripToolConfig } from "../types";
 
 export const LOAD_FILE = "LOAD_FILE";
 export const SAVE_FILE = "SAVE_FILE";
-export const CLEAR_STATE = "CLEAR_STATE";
+export const CLEAR_CONFIG = "CLEAR_CONFIG";
 export const ADD_CURVE = "ADD_CURVE";
 export const DELETE_CURVE = "DELETE_CURVE";
 export const MODIFY_CONFIG = "MODIFY_CONFIG";
@@ -22,9 +22,9 @@ const saveFile = (fileName: string) => {
   };
 };
 
-const clearState = () => {
+const clearConfig = () => {
   return {
-    type: CLEAR_STATE
+    type: CLEAR_CONFIG
   };
 };
 
@@ -53,4 +53,4 @@ const modifyConfig = (
   };
 };
 
-export { loadFile, saveFile, clearState, addCurve, deleteCurve, modifyConfig };
+export { loadFile, saveFile, clearConfig, addCurve, deleteCurve, modifyConfig };

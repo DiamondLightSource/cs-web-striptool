@@ -1,27 +1,45 @@
 import React, { useEffect, useState } from "react";
 import Plotly from "plotly.js-basic-dist";
 import createPlotlyComponent from "react-plotly.js/factory";
-import type { GraphCurve, StripToolConfig } from "../../../types";
+import type { GraphCurve } from "../../../types";
 import { useSelector } from "react-redux";
 import { computeTimeTickLabels } from "../../../utils/computeTimeTicks";
+import { StateConfig } from "../../../redux/state";
+import { ConnectingComponent } from "../ConnectingComponent/connectingComponent";
+import {
+  InferWidgetProps,
+  IntPropOpt,
+  StringArrayPropOpt,
+  StringPropOpt
+} from "../../../types/propTypes";
+import { PVComponent, PVWidgetPropType } from "../../../types/widgetProps";
 // Create plot component from minimal Plotly package
 // This is necessary because normal Plot component is too large,
 const Plot = createPlotlyComponent(Plotly);
 
-type GraphProps = {
-  xLabelStrings: string[];
-  xAxisUnit: string;
-  xTickValue: number;
-  xTickMultiplier: number;
+const GraphProps = {
+  xLabelStrings: StringArrayPropOpt,
+  xAxisUnit: StringPropOpt,
+  xTickValue: IntPropOpt,
+  xTickMultiplier: IntPropOpt
 };
+
+export type GraphComponentProps = InferWidgetProps<typeof GraphProps> &
+  PVComponent;
 
 const ZOOM_FACTORS: number[] = [0.5, 2];
 
-export const Graph = (props: GraphProps): JSX.Element => {
-  const { xLabelStrings, xAxisUnit, xTickValue, xTickMultiplier } = props;
-  const fileName = useSelector((state: StripToolConfig) => state.file.name);
-  const time = useSelector((state: StripToolConfig) => state.time);
-  const curves = useSelector((state: StripToolConfig) => state.curve);
+export const GraphComponent = (props: GraphComponentProps): JSX.Element => {
+  const {
+    xLabelStrings = [],
+    xAxisUnit = "seconds",
+    xTickValue = 1,
+    xTickMultiplier = 1
+  } = props;
+  console.log(props);
+  const fileName = useSelector((state: StateConfig) => state.config.file.name);
+  const time = useSelector((state: StateConfig) => state.config.time);
+  const curves = useSelector((state: StateConfig) => state.config.curve);
   // Create data
   const numData = time.numSamples;
   const date = new Date();
@@ -265,3 +283,14 @@ function getMinMax(curves: GraphCurve[]) {
     max
   };
 }
+
+const XYPlotWidgetProps = {
+  ...GraphProps,
+  ...PVWidgetPropType
+};
+
+export const Graph = (
+  props: InferWidgetProps<typeof XYPlotWidgetProps>
+): JSX.Element => (
+  <ConnectingComponent component={GraphComponent} widgetProps={props} />
+);

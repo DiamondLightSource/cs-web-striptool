@@ -12,13 +12,13 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { StripToolConfig } from "../../../types";
-import { modifyConfig } from "../../../redux/actions";
+import { modifyConfig } from "../../../redux/appActions";
+import { StateConfig } from "../../../redux/state";
 
 export const GraphOptions = (): JSX.Element => {
   const dispatch = useDispatch();
-  const color = useSelector((state: StripToolConfig) => state.color);
-  const option = useSelector((state: StripToolConfig) => state.option);
+  const color = useSelector((state: StateConfig) => state.config.color);
+  const option = useSelector((state: StateConfig) => state.config.option);
 
   const handleChange = (
     event:

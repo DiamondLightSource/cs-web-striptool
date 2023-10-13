@@ -3,12 +3,12 @@ import { Legend } from "./components/Legend/legend";
 import { Box } from "@chakra-ui/react";
 import { Graph } from "./components/Graph/graph";
 import { useSelector } from "react-redux";
-import type { StripToolConfig } from "../types";
 import { computeTimeTickLabels } from "../utils/computeTimeTicks";
+import { StateConfig } from "../redux/state";
 
 export const GraphPanel = (): JSX.Element => {
   const timespan: number = useSelector(
-    (state: StripToolConfig) => state.time.timespan
+    (state: StateConfig) => state.config.time.timespan
   );
   const [labels, unit, tickValue, multiplier] = computeTimeTickLabels(timespan);
   return (
