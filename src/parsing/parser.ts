@@ -1,7 +1,7 @@
 /**
  * Load a .stp file and parse into an array of dicts
  */
-import type { StripToolConfig, StripToolConfigDict } from "../types";
+import { StripToolConfig, StripToolConfigDict } from "../types/config";
 
 /**
  * Opens and reads the .stp file, loads into state

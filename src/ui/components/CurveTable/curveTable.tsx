@@ -11,15 +11,15 @@ import {
   Checkbox,
   Input
 } from "@chakra-ui/react";
-import type { GraphCurve } from "../../../types";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteCurve, modifyConfig } from "../../../redux/appActions";
 import { StateConfig } from "../../../redux/state";
+import { Curve } from "../../../types/curve";
 
 export const CurveTable = (): JSX.Element => {
   const dispatch = useDispatch();
   // Pass in new row when one is added?
-  const curves: GraphCurve[] = useSelector(
+  const curves: Curve[] = useSelector(
     (state: StateConfig) => state.config.curve
   );
   const colors = useSelector((state: StateConfig) => state.config.color.colors);
@@ -37,9 +37,9 @@ export const CurveTable = (): JSX.Element => {
       const input = inputValues[idx];
       Object.keys(input).forEach((key: string) => {
         // For each key, check if value has changed
-        if (curve[key as keyof GraphCurve] !== input[key as keyof GraphCurve]) {
+        if (curve[key as keyof Curve] !== input[key as keyof Curve]) {
           // Values don't match, therefore update
-          const newCurve = { ...curve, [key]: input[key as keyof GraphCurve] };
+          const newCurve = { ...curve, [key]: input[key as keyof Curve] };
           dispatch(modifyConfig(`curve.${idx}`, newCurve));
         }
       });
@@ -56,7 +56,7 @@ export const CurveTable = (): JSX.Element => {
     idx: number
   ) => {
     // We have updated a curve at given index. so we fetch and update value
-    const newCurves: GraphCurve[] = curves.map(curve => {
+    const newCurves: Curve[] = curves.map(curve => {
       switch (field) {
         case "precision":
           return { ...curve, precision: Number(event.currentTarget.value) };
@@ -81,7 +81,7 @@ export const CurveTable = (): JSX.Element => {
 
   const curveOpts: React.JSX.Element[] = [];
   if (curves.length > 0) {
-    curves.forEach((curve: GraphCurve, idx: number) => {
+    curves.forEach((curve: Curve, idx: number) => {
       curveOpts.push(
         <Tr key={curve.name}>
           <Td>{curve.name}</Td>

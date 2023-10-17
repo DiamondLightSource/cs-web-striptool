@@ -1,4 +1,5 @@
-import type { GraphCurve, StripToolConfig } from "../types";
+import { Curve } from "../types/curve";
+import { StripToolConfig } from "../types/config";
 
 export const LOAD_FILE = "LOAD_FILE";
 export const SAVE_FILE = "SAVE_FILE";
@@ -28,7 +29,7 @@ const clearConfig = () => {
   };
 };
 
-const addCurve = (curve: GraphCurve) => {
+const addCurve = (curve: Curve) => {
   return {
     type: ADD_CURVE,
     curve: curve
@@ -44,7 +45,7 @@ const deleteCurve = (name: string) => {
 
 const modifyConfig = (
   name: string,
-  value: string | number | boolean | GraphCurve
+  value: string | number | boolean | Curve
 ) => {
   return {
     type: MODIFY_CONFIG,

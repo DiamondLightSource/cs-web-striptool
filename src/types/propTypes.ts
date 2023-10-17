@@ -24,6 +24,22 @@ export const BoolPropOpt = PropTypes.bool;
 export const PvProp = PropTypes.instanceOf(PV).isRequired;
 export const PvPropOpt = PropTypes.instanceOf(PV);
 
+export const PvArrayProp = PropTypes.arrayOf(PvProp).isRequired;
+export const PvArrayPropOpt = PropTypes.arrayOf(PvProp);
+
+export const CurvePropOpt = PropTypes.shape({
+  name: StringPropOpt,
+  units: StringPropOpt,
+  comment: StringPropOpt,
+  precision: FloatPropOpt,
+  min: FloatPropOpt,
+  max: FloatPropOpt,
+  scale: BoolPropOpt,
+  plotStatus: BoolPropOpt
+});
+
+export const CurveProp = CurvePropOpt.isRequired;
+
 export const PvTypePropOpt = PropTypes.shape({
   double: BoolPropOpt,
   string: BoolPropOpt,
@@ -34,6 +50,9 @@ export const PvTypePropOpt = PropTypes.shape({
 });
 
 export const PvTypeProp = PvTypePropOpt.isRequired;
+
+export const PvTypeArrayProp = PropTypes.arrayOf(PvTypeProp).isRequired;
+export const PvTypeArrayPropOpt = PropTypes.arrayOf(PvTypeProp);
 
 export const StringOrNumPropOpt = PropTypes.oneOfType([
   PropTypes.string,

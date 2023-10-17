@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import type { GraphCurve } from "../types";
 import {
   Box,
   Tabs,
@@ -24,6 +23,7 @@ import { CurveTable } from "./components/CurveTable/curveTable";
 import { GraphOptions } from "./components/GraphOptions/graphOptions";
 import { TimeControls } from "./components/TimeControls/timeControls";
 import { parseFile } from "../parsing/parser";
+import { Curve } from "../types/curve";
 
 export const ControlPanel = (): JSX.Element => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -68,7 +68,7 @@ export const ControlPanel = (): JSX.Element => {
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     // Create curve with defaults
-    const newCurve: GraphCurve = {
+    const newCurve: Curve = {
       name: input,
       precision: 4,
       min: 0,

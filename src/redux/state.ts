@@ -11,7 +11,7 @@ import {
   MODIFY_CONFIG,
   CLEAR_CONFIG
 } from "./appActions";
-import type { StripToolConfig } from "../types";
+import { StripToolConfig } from "../types/config";
 import {
   VALUE_CHANGED,
   VALUES_CHANGED,
@@ -76,18 +76,19 @@ export interface StateConfig {
   connection: CsState;
 }
 
-const allState: StateConfig = {
-  config: initialConfigState,
-  connection: initialConnectionState
-};
-
-export interface PvState {
+export interface SinglePvState {
   value?: DType;
   connected: boolean;
   readonly: boolean;
 }
 
-export interface FullPvState extends PvState {
+export interface MultiplePvState {
+  values: (DType | unknown)[];
+  connected: boolean[];
+  readonly: boolean[];
+}
+
+export interface FullPvState extends SinglePvState {
   initializingPvName: string;
 }
 

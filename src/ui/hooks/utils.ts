@@ -1,8 +1,18 @@
-import { PvState, CsState, StateConfig } from "../../redux/state";
+import { SinglePvState, CsState, StateConfig } from "../../redux/state";
 import { DType } from "../../types/dtypes";
 
 export interface PvArrayResults {
-  [pvName: string]: [PvState, string];
+  [pvName: string]: [SinglePvState, string];
+}
+
+export interface MultiplePvDataArray {
+  [pvName: string]: MultiplePvData;
+}
+
+export interface MultiplePvData {
+  connected?: boolean;
+  readonly?: boolean;
+  value?: DType | undefined;
 }
 
 export function pvStateSelector(

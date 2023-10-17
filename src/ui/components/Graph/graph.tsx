@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
 import Plotly from "plotly.js-basic-dist";
 import createPlotlyComponent from "react-plotly.js/factory";
-import type { GraphCurve } from "../../../types";
 import { useSelector } from "react-redux";
 import { computeTimeTickLabels } from "../../../utils/computeTimeTicks";
 import { StateConfig } from "../../../redux/state";
-import { ConnectingComponent } from "../ConnectingComponent/connectingComponent";
+import { MultipleConnectingComponent } from "../ConnectingComponent/connectingComponent";
 import {
   InferWidgetProps,
   IntPropOpt,
   StringArrayPropOpt,
   StringPropOpt
 } from "../../../types/propTypes";
-import { PVComponent, PVWidgetPropType } from "../../../types/widgetProps";
+import {
+  MultiplePVComponent,
+  MultiplePVPropType
+} from "../../../types/widgetProps";
+import { Curve } from "../../../types/curve";
 // Create plot component from minimal Plotly package
 // This is necessary because normal Plot component is too large,
 const Plot = createPlotlyComponent(Plotly);
@@ -25,7 +28,7 @@ const GraphProps = {
 };
 
 export type GraphComponentProps = InferWidgetProps<typeof GraphProps> &
-  PVComponent;
+  MultiplePVComponent;
 
 const ZOOM_FACTORS: number[] = [0.5, 2];
 
@@ -36,7 +39,6 @@ export const GraphComponent = (props: GraphComponentProps): JSX.Element => {
     xTickValue = 1,
     xTickMultiplier = 1
   } = props;
-  console.log(props);
   const fileName = useSelector((state: StateConfig) => state.config.file.name);
   const time = useSelector((state: StateConfig) => state.config.time);
   const curves = useSelector((state: StateConfig) => state.config.curve);
@@ -273,7 +275,7 @@ function getWindowDimensions() {
   };
 }
 
-function getMinMax(curves: GraphCurve[]) {
+function getMinMax(curves: Curve[]) {
   const minArray = curves.map(curve => curve.min);
   const maxArray = curves.map(curve => curve.max);
   const min = Math.min(...minArray);
@@ -284,13 +286,13 @@ function getMinMax(curves: GraphCurve[]) {
   };
 }
 
-const XYPlotWidgetProps = {
+const GraphPVProps = {
   ...GraphProps,
-  ...PVWidgetPropType
+  ...MultiplePVPropType
 };
 
 export const Graph = (
-  props: InferWidgetProps<typeof XYPlotWidgetProps>
+  props: InferWidgetProps<typeof GraphPVProps>
 ): JSX.Element => (
-  <ConnectingComponent component={GraphComponent} widgetProps={props} />
+  <MultipleConnectingComponent component={GraphComponent} widgetProps={props} />
 );
